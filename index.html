@@ -1,18 +1,141 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="myApp">
 <head>
-  <meta charset="UTF-8">
-  <title>My Site</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bulma + AngularJS Single Page</title>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+  />
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+  <style>
+    /* Small spacing adjustments */
+    .nav-link {
+      cursor: pointer;
+    }
+  </style>
 </head>
-<body ng-controller="MainCtrl">
+<body ng-controller="MainCtrl" class="container">
+
+  <!-- Navbar -->
+  <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="#">
+        <strong>My Site</strong>
+      </a>
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" ng-click="toggleBurger()" ng-class="{'is-active': burgerActive}">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div class="navbar-menu" ng-class="{'is-active': burgerActive}">
+      <div class="navbar-start">
+        <a class="navbar-item nav-link" ng-click="setView('home')">Home</a>
+        <a class="navbar-item nav-link" ng-click="setView('about')">About</a>
+        <a class="navbar-item nav-link" ng-click="setView('services')">Services</a>
+        <a class="navbar-item nav-link" ng-click="setView('contact')">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
   <section class="section">
-    <div class="container">
-      <h1 class="title">Hello, {{ name }}!</h1>
+    <div ng-switch="currentView">
+
+      <div ng-switch-when="home">
+        <h1 class="title">Home</h1>
+        <p>Welcome to the homepage of your website using Bulma and AngularJS.</p>
+      </div>
+
+      <div ng-switch-when="about">
+        <h1 class="title">About</h1>
+        <p>This is the About section. Write something about yourself or your company here.</p>
+      </div>
+
+      <div ng-switch-when="services">
+        <h1 class="title">Services</h1>
+        <p>Describe the services you offer to your clients.</p>
+      </div>
+
+      <div ng-switch-when="contact">
+        <h1 class="title">Contact</h1>
+        <form name="contactForm" ng-submit="submitForm()" novalidate>
+          <div class="field">
+            <label class="label">Name</label>
+            <div class="control">
+              <input class="input" type="text" ng-model="formData.name" required placeholder="Your name" />
+            </div>
+            <p class="help is-danger" ng-show="contactForm.$submitted && contactForm.name.$error.required">Name is required</p>
+          </div>
+
+          <div class="field">
+            <label class="label">Email</label>
+            <div class="control">
+              <input class="input" type="email" ng-model="formData.email" required placeholder="Your email" name="email" />
+            </div>
+            <p class="help is-danger" ng-show="contactForm.$submitted && contactForm.email.$error.required">Email is required</p>
+            <p class="help is-danger" ng-show="contactForm.email.$error.email">Invalid email address</p>
+          </div>
+
+          <div class="field">
+            <label class="label">Message</label>
+            <div class="control">
+              <textarea class="textarea" ng-model="formData.message" required placeholder="Your message"></textarea>
+            </div>
+            <p class="help is-danger" ng-show="contactForm.$submitted && contactForm.message.$error.required">Message is required</p>
+          </div>
+
+          <div class="control">
+            <button class="button is-primary" type="submit">Send</button>
+          </div>
+        </form>
+
+        <div class="notification is-success" ng-if="formSubmitted">
+          Thank you, {{formData.name}}! Your message has been sent.
+        </div>
+      </div>
+
     </div>
   </section>
 
-  <script src="js/app.js"></script>
+  <footer class="footer has-background-primary has-text-white-ter">
+    <div class="content has-text-centered">
+      <p>&copy; 2025 My Website. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    angular.module('myApp', []).controller('MainCtrl', ['$scope', function($scope) {
+      $scope.currentView = 'home';
+      $scope.burgerActive = false;
+      $scope.formData = {};
+      $scope.formSubmitted = false;
+
+      $scope.setView = function(view) {
+        $scope.currentView = view;
+        $scope.burgerActive = false; // close burger menu on click
+        $scope.formSubmitted = false; // reset form submission notification on view change
+      };
+
+      $scope.toggleBurger = function() {
+        $scope.burgerActive = !$scope.burgerActive;
+      };
+
+      $scope.submitForm = function() {
+        if ($scope.contactForm.$valid) {
+          $scope.formSubmitted = true;
+          // Clear form after submission, but keep the name for thank you message
+          var name = $scope.formData.name;
+          $scope.formData = { name: name };
+          $scope.contactForm.$setPristine();
+          $scope.contactForm.$setUntouched();
+        }
+      };
+    }]);
+  </script>
 </body>
 </html>
+
